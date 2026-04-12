@@ -1,0 +1,385 @@
+{
+  "name": "Drive to TikTok Auto Upload",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "tiktok-auth",
+        "options": {}
+      },
+      "id": "e53b037d-36e1-4358-8fa7-97bc7028273a",
+      "name": "TikTok Auth Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        -32
+      ],
+      "webhookId": "7f3eb928-d170-4bba-b0c7-5d6f642f3842"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/oauth/token/",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_key",
+              "value": "YOUR_CLIENT_KEY"
+            },
+            {
+              "name": "client_secret",
+              "value": "YOUR_CLIENT_SECRET"
+            },
+            {
+              "name": "code",
+              "value": "={{$json[\"query\"][\"code\"]}}"
+            },
+            {
+              "name": "grant_type",
+              "value": "authorization_code"
+            },
+            {
+              "name": "redirect_uri",
+              "value": "https://YOUR_N8N_DOMAIN/webhook/tiktok-auth"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ca0d6ee8-ffe3-436a-b910-660c5dcaf418",
+      "name": "Get Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        496,
+        -32
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $json.data.upload_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Length",
+              "value": "={{$('Download Video').item.json.size}}"
+            },
+            {
+              "name": "Content-Range",
+              "value": "=bytes 0-{{ $('Download Video').item.json.size - 1 }}/{{ $('Download Video').item.json.size }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "={{$('Download Video').item.binary.data}}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "b746933f-51a5-4811-aea1-25a7235dc24d",
+      "name": "Upload Video1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        800,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_ACCESS_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "publish_id",
+              "value": "={{ $('Init TikTok Upload').item.json.data.publish_id }}"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "43a9f81b-5c3a-4170-b358-19454c250a3b",
+      "name": "Publish Video1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        1280,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://open.tiktokapis.com/v2/post/publish/inbox/video/init/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_ACCESS_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "= {\n  \"source_info\": {\n    \"source\": \"FILE_UPLOAD\",\n    \"video_size\": {{ $json.size }},\n    \"chunk_size\": {{ $json.size }},\n    \"total_chunk_count\": 1\n  },\n  \"post_info\": {\n    \"privacy_level\": \"PUBLIC\",\n    \"title\": \"video\"\n  }\n }",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "id": "bab38f07-187c-44ac-812d-07c850db7cf1",
+      "name": "Init TikTok Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        528,
+        336
+      ]
+    },
+    {
+      "parameters": {
+        "content": "# Get Access Token",
+        "height": 272,
+        "width": 608
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "fa9c16be-dbcb-48be-9dd8-656905a131a9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Publish a Video to TikTok",
+        "height": 272,
+        "width": 1028
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        448,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "0502f058-2a60-453c-8210-2775acf13e28",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Fetch the video\n",
+        "height": 272,
+        "width": 624
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -272,
+        256
+      ],
+      "typeVersion": 1,
+      "id": "4df55289-60ee-4485-9d63-0cb1e1592c8f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1Tcfc1zMYORsvFDHX67Ie2uJrOn_jl8l0",
+          "mode": "list",
+          "cachedResultName": "YOUR_FOLDER_NAME",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_FOLDER_ID"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "YOUR_FOLDER_ID",
+      "name": "Google Drive Trigger",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        336
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AhgFzAw7pKDwVYHo",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "67481727-9b2f-43c7-984e-39d91b63b295",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        112,
+        336
+      ],
+      "retryOnFail": false,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "AhgFzAw7pKDwVYHo",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1008,
+        336
+      ],
+      "id": "c388bd19-9ed0-4fd4-b386-a73cf6bc58dd",
+      "name": "Wait",
+      "webhookId": "b1d71b94-bfcb-4bdd-bb87-fe90223d35c4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "TikTok Auth Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Access Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Video1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init TikTok Upload": {
+      "main": [
+        [
+          {
+            "node": "Upload Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Init TikTok Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Publish Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "faada934-88b0-4b14-b0e8-675cd0e235d2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0a0ab801c48c05f387f5f5040d8af394fd91be2e1e79ce1d4102b9f4d019c6f1"
+  },
+  "id": "ACMzDG9ZeDi4BeYj",
+  "tags": []
+}
