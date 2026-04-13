@@ -58,10 +58,9 @@ https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_CLIENT_KEY&scope=video
 
 
 <p align="center">
-<img src = "images/publish-TikTok-node0.png" width="24%">
-<img src = "images/publish-TikTok-node1.png" width="24%">
-<img src = "images/publish-TikTok-node2.png" width="24%">
-<img src = "images/publish-TikTok-node3.png" width="24%">
+<img src = "images/publish-TikTok-node0.png" width="32%">
+<img src = "images/publish-TikTok-node1.png" width="32%">
+<img src = "images/publish-TikTok-node2.png" width="32%">
 </p>
 
 o	SEND_TO_USER_INBOX Status: When the workflow returns this status, it confirms the video has been successfully processed and delivered to your TikTok account.
