@@ -2,7 +2,7 @@
 This n8n workflow provides a native, direct connection between your files and the TikTok Content Posting API. 
 It eliminates the need for any third-party automation services, communicating directly with TikTok's official servers for maximum security and control.
 
-![TikTokWorkflow](images/2.png)
+![TikTokWorkflow](images/TikTok-workflow.png)
 
 🛠 Detailed Technical Steps
 
